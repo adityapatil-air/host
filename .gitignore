@@ -1,3 +1,9 @@
+# Model files (large files)
+backend/model/
+merged_model/
+*.safetensors
+*.model
+
 # Python
 __pycache__/
 *.pyc
