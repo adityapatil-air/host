@@ -23,7 +23,7 @@ export default function TranslationInterface() {
     setError('')
     
     try {
-      const response = await axios.post<TranslationResponse>('http://localhost:8001/translate', {
+      const response = await axios.post<TranslationResponse>('http://localhost:8000/translate', {
         text: inputText,
         source_lang: sourceLang,
         target_lang: 'english'

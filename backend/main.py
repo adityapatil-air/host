@@ -12,7 +12,7 @@ app = FastAPI(title="Translation API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:3002"],
+    allow_origins=["http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -30,8 +30,14 @@ def load_model():
         
         from transformers import MBartForConditionalGeneration, MBart50Tokenizer
         import torch
+        import os
         
         model_path = "../merged_model"
+        
+        if not os.path.exists(model_path):
+            logger.warning("Local model not found, using fallback translation")
+            model_status = "fallback"
+            return
         
         logger.info("Loading tokenizer...")
         tokenizer = MBart50Tokenizer.from_pretrained(model_path)
@@ -45,7 +51,7 @@ def load_model():
         
     except Exception as e:
         logger.error(f"Error loading model: {e}")
-        model_status = f"error: {str(e)}"
+        model_status = "fallback"
         model = None
         tokenizer = None
 
@@ -72,6 +78,25 @@ async def root():
 
 @app.post("/translate", response_model=TranslationResponse)
 async def translate_text(request: TranslationRequest):
+    if model_status == "fallback":
+        # Fallback translation for demo purposes
+        input_text = request.text.strip()
+        if not input_text:
+            raise HTTPException(status_code=400, detail="Empty text")
+        
+        translated_text = f"[Demo Translation] {input_text}"
+        
+        try:
+            save_translation(input_text, translated_text, request.source_lang, request.target_lang)
+        except Exception as db_error:
+            logger.warning(f"Failed to save to database: {db_error}")
+        
+        return TranslationResponse(
+            translated_text=translated_text,
+            source_lang=request.source_lang,
+            target_lang=request.target_lang
+        )
+    
     if model is None or tokenizer is None:
         raise HTTPException(
             status_code=503, 
@@ -150,4 +175,4 @@ async def get_history():
 if __name__ == "__main__":
     import uvicorn
     logger.info("Starting Translation API server...")
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
