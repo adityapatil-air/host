@@ -40,7 +40,7 @@ class FloatingTranslator:
             'danger': '#CD5C5C'
         }
         
-        self.api_url = "http://localhost:8000/translate"
+        self.api_url = "http://localhost:8001/translate"
         self.expanded = False
         self.create_floating_button()
         
@@ -262,48 +262,61 @@ class FloatingTranslator:
             selectforeground='white',
             insertbackground=self.colors['text_primary']
         )
-        self.source_text.pack(fill=tk.BOTH, expand=True, padx=20, pady=(0, 15))
+        self.source_text.pack(fill=tk.BOTH, expand=True, padx=20, pady=(0, 10))
         
-        # Cultural translate button
-        button_frame = tk.Frame(content, bg=self.colors['bg_primary'])
-        button_frame.pack(fill=tk.X, pady=15)
+        # Small translate button between source and output
+        translate_btn_frame = tk.Frame(input_section, bg=self.colors['bg_secondary'])
+        translate_btn_frame.pack(pady=5)
         
         self.translate_btn = tk.Label(
-            button_frame,
-            text="✨ TRANSFORM ✨",
+            translate_btn_frame,
+            text="▼ TRANSLATE ▼",
             bg=self.colors['primary'],
             fg='white',
-            font=('Inter', 14, 'bold'),
+            font=('Inter', 11, 'bold'),
             cursor='hand2',
-            padx=30,
-            pady=12,
+            padx=20,
+            pady=8,
             relief='raised',
-            bd=3
+            bd=2
         )
         self.translate_btn.pack()
         self.translate_btn.bind('<Button-1>', self.translate)
         self.translate_btn.bind('<Enter>', lambda e: self.translate_btn.config(bg=self.colors['secondary']))
         self.translate_btn.bind('<Leave>', lambda e: self.translate_btn.config(bg=self.colors['primary']))
         
-        # Cultural output section
-        output_section = tk.Frame(content, bg=self.colors['bg_secondary'], relief='solid', bd=2)
-        output_section.pack(fill=tk.BOTH, expand=True, pady=(20, 0), ipady=15)
-        
-        output_header = tk.Frame(output_section, bg=self.colors['bg_secondary'])
-        output_header.pack(fill=tk.X, padx=20, pady=(10, 8))
+        # Cultural output section - RIGHT BELOW SOURCE
+        output_section = tk.Frame(input_section, bg=self.colors['bg_secondary'])
+        output_section.pack(fill=tk.BOTH, expand=True, padx=20, pady=(10, 15))
         
         tk.Label(
-            output_header, 
-            text="✨ Translation", 
+            output_section, 
+            text="✨ Translated Text", 
             bg=self.colors['bg_secondary'], 
             fg=self.colors['text_primary'],
             font=('Inter', 12, 'bold')
-        ).pack(side=tk.LEFT)
+        ).pack(pady=(0, 8), anchor=tk.W)
+        
+        self.result_text = tk.Text(
+            output_section, 
+            height=5, 
+            font=('Arial', 12, 'bold'), 
+            wrap=tk.WORD,
+            bg='#FFE4B5',
+            fg='#2F1B14',
+            relief='solid',
+            bd=3
+        )
+        self.result_text.pack(fill=tk.BOTH, expand=True)
+        self.result_text.insert('1.0', 'Translation will appear here...')
         
         # Cultural copy button
+        button_frame = tk.Frame(content, bg=self.colors['bg_primary'])
+        button_frame.pack(fill=tk.X, pady=10)
+        
         copy_btn = tk.Label(
-            output_header,
-            text="📋 Copy",
+            button_frame,
+            text="📋 Copy Translation",
             bg=self.colors['secondary'],
             fg='white',
             font=('Inter', 10, 'bold'),
@@ -313,25 +326,10 @@ class FloatingTranslator:
             relief='raised',
             bd=2
         )
-        copy_btn.pack(side=tk.RIGHT)
+        copy_btn.pack(pady=(10, 0))
         copy_btn.bind('<Button-1>', self.copy_result)
         copy_btn.bind('<Enter>', lambda e: copy_btn.config(bg=self.colors['accent']))
         copy_btn.bind('<Leave>', lambda e: copy_btn.config(bg=self.colors['secondary']))
-        
-        self.result_text = tk.Text(
-            output_section, 
-            height=4, 
-            font=('Inter', 11), 
-            wrap=tk.WORD,
-            bg=self.colors['bg_primary'],
-            fg=self.colors['text_primary'],
-            relief='solid',
-            bd=2,
-            selectbackground=self.colors['accent'],
-            selectforeground='white',
-            state='disabled'
-        )
-        self.result_text.pack(fill=tk.BOTH, expand=True, padx=20, pady=(0, 15))
         
         # Cultural status
         status_frame = tk.Frame(content, bg=self.colors['bg_secondary'], relief='solid', bd=1)
@@ -361,37 +359,78 @@ class FloatingTranslator:
             return
             
         self.status_label.config(text="✨ Performing sacred transformation...")
-        self.translate_btn.config(text="⏳ TRANSFORMING...", bg='#999')
+        self.translate_btn.config(text="Translating...", bg='#999')
         self.root.update()
         
         # Map display names to API codes
-        lang_map = {"English": "en", "Nepali": "ne", "Sinhala": "si"}
+        lang_map = {
+            "English": "en_XX", 
+            "Nepali": "ne_NP", 
+            "Sinhala": "si_LK"
+        }
+        
+        src_lang = lang_map.get(self.from_lang.get(), "en_XX")
+        tgt_lang = lang_map.get(self.to_lang.get(), "ne_NP")
         
         if not HAS_REQUESTS:
+            # Fallback mock translations
             mock_translations = {
                 "hello": "नमस्ते",
                 "good morning": "शुभ प्रभात", 
-                "thank you": "धन्यवाद",
-                "how are you": "तपाईं कस्तो हुनुहुन्छ",
-                "goodbye": "अलविदा",
-                "please": "कृपया",
-                "yes": "हो",
-                "no": "होइन"
+                "thank you": "धन्यवाद"
             }
-            result = mock_translations.get(text.lower(), f"[Sacred Translation] {text}")
+            result = mock_translations.get(text.lower(), f"[Demo Translation] {text}")
             
-            self.result_text.config(state='normal')
             self.result_text.delete("1.0", tk.END)
             self.result_text.insert("1.0", result)
-            self.result_text.config(state='disabled')
             
-            self.status_label.config(text="✨ Sacred transformation complete - Demo mode")
-            self.translate_btn.config(text="✨ TRANSFORM ✨", bg=self.colors['primary'])
+            self.status_label.config(text="Demo mode - Install 'requests' for real translation")
+            self.translate_btn.config(text="TRANSLATE", bg=self.colors['primary'])
             return
         
-        # Real API call would go here
-        self.status_label.config(text="⚠️ Sacred backend temple not connected")
-        self.translate_btn.config(text="✨ TRANSFORM ✨", bg=self.colors['primary'])
+        # Real API call to backend
+        try:
+            payload = {
+                "text": text,
+                "src_lang": src_lang,
+                "tgt_lang": tgt_lang
+            }
+            
+            # Debug output without unicode issues
+            print("Sending translation request...")
+            print(f"Text length: {len(text)} characters")
+            
+            response = requests.post(self.api_url, json=payload, timeout=30)
+            
+            print(f"Response status: {response.status_code}")
+            if response.status_code == 200:
+                print("Translation successful")
+            else:
+                print("Translation failed")
+            
+            if response.status_code == 200:
+                response_data = response.json()
+                result = response_data.get('translated_text', 'Translation failed')
+                
+                result = response_data.get('translated_text', 'Translation failed')
+                self.result_text.delete("1.0", tk.END)
+                self.result_text.insert("1.0", result)
+                self.result_text.config(bg='#E8F5E8')
+                self.root.after(1500, lambda: self.result_text.config(bg='#FFE4B5'))
+                self.status_label.config(text="✨ Sacred transformation complete!")
+            else:
+                error_detail = response.json().get('detail', 'Unknown error') if response.text else 'No response'
+                self.status_label.config(text=f"⚠️ API Error: {response.status_code} - {error_detail}")
+                
+        except requests.exceptions.ConnectionError:
+            self.status_label.config(text="⚠️ Cannot connect to translation service")
+        except requests.exceptions.Timeout:
+            self.status_label.config(text="⚠️ Translation timeout - try shorter text")
+        except Exception as e:
+            print("Translation exception occurred")
+            self.status_label.config(text="Error: Translation failed")
+        
+        self.translate_btn.config(text="TRANSLATE", bg=self.colors['primary'])
     
     def close_app(self, event=None):
         self.root.quit()
@@ -459,7 +498,7 @@ class FloatingTranslator:
                         widget.pack(fill=tk.BOTH, expand=True)
             
             # Cultural size
-            self.root.geometry(f'420x500+{new_x}+{new_y}')
+            self.root.geometry(f'450x550+{new_x}+{new_y}')
     
     def minimize(self, event=None):
         if self.expanded:

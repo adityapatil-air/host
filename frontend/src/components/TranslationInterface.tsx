@@ -32,11 +32,27 @@ export default function TranslationInterface() {
         tgt_lang: 'en_XX'
       })
       
-      setTranslatedText(response.data.translated_text)
+      console.log('Translation response:', response.data)
+      const translation = response.data.translated_text || 'No translation received'
+      setTranslatedText(translation)
+      
+      // Show success message
+      if (translation && translation !== 'No translation received') {
+        setTimeout(() => {
+          const outputElement = document.querySelector('textarea[readonly]')
+          if (outputElement) {
+            outputElement.style.backgroundColor = '#e8f5e8'
+            setTimeout(() => {
+              outputElement.style.backgroundColor = '#f0f8ff'
+            }, 1000)
+          }
+        }, 100)
+      }
     } catch (err: any) {
       console.error('Translation error:', err)
       const errorMessage = err.response?.data?.detail || err.message || 'Translation failed. Please try again.'
       setError(errorMessage)
+      setTranslatedText('Translation failed - please try again')
     } finally {
       setLoading(false)
     }
@@ -103,11 +119,22 @@ export default function TranslationInterface() {
             <textarea
               value={translatedText}
               readOnly
-              placeholder={t('translate.placeholder')}
+              placeholder="Translation will appear here..."
               className="sacred-textarea"
+              style={{ 
+                backgroundColor: '#f0f8ff', 
+                minHeight: '200px',
+                border: '3px solid #daa520',
+                fontSize: '16px',
+                fontWeight: 'bold',
+                color: '#2F1B14'
+              }}
             />
-            
-
+            {translatedText && (
+              <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded text-xs">
+                ✓ Translated
+              </div>
+            )}
           </div>
         </div>
       </div>
