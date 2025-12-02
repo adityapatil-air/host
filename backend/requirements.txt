@@ -5,3 +5,7 @@ torch
 sentencepiece
 python-dotenv
 pydantic
+requests
+python-multipart
+pytesseract
+Pillow

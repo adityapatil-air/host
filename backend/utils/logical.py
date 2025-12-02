@@ -5,8 +5,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-MODEL_ID = os.getenv("MODEL_ID")
+MODEL_ID = os.getenv("MODEL_ID", "facebook/mbart-large-50-many-to-many-mmt")
 
+print(f"Loading model: {MODEL_ID}")
 print("Loading tokenizer...")
 tokenizer = MBart50TokenizerFast.from_pretrained(MODEL_ID)
 

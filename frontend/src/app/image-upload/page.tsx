@@ -62,6 +62,32 @@ export default function ImageUpload() {
     })
   }
 
+  const handleOCRExtraction = async (file: File, type: 'printed' | 'handwritten') => {
+    setSelectedFile(file)
+    setExtracting(true)
+    setOcrProgress(0)
+    
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      
+      const endpoint = type === 'printed' ? '/ocr/printed' : '/ocr/handwritten'
+      const response = await fetch(`http://localhost:8001${endpoint}`, {
+        method: 'POST',
+        body: formData
+      })
+      
+      const data = await response.json()
+      setExtractedText(data.extracted_text || 'No text detected')
+    } catch (error) {
+      console.error('OCR extraction failed:', error)
+      setExtractedText('OCR extraction failed. Please try again.')
+    } finally {
+      setExtracting(false)
+      setOcrProgress(0)
+    }
+  }
+
   const extractTextFromFile = async (file: File) => {
     setExtracting(true)
     setOcrProgress(0)
@@ -144,20 +170,48 @@ export default function ImageUpload() {
           onDrop={handleDrop}
           onDragOver={(e) => { e.preventDefault(); setDragActive(true) }}
           onDragLeave={() => setDragActive(false)}
-          onClick={() => document.getElementById('file-input')?.click()}
         >
           <div className="upload-icon">📄</div>
           <div className="upload-text">Upload Image or PDF</div>
           <p className="upload-subtitle">Extract text from images and PDFs - Nepali & Sinhala Support</p>
-          <div className="upload-ornament"></div>
           
-          <input
-            id="file-input"
-            type="file"
-            accept="image/*,.pdf"
-            onChange={handleFileInput}
-            style={{ display: 'none' }}
-          />
+          <div className="ocr-buttons">
+            <button
+              onClick={() => {
+                const input = document.createElement('input')
+                input.type = 'file'
+                input.accept = 'image/*'
+                input.onchange = (e) => {
+                  const file = (e.target as HTMLInputElement).files?.[0]
+                  if (file) handleOCRExtraction(file, 'printed')
+                }
+                input.click()
+              }}
+              className="ocr-btn printed"
+              disabled={extracting}
+            >
+              📄 Extract Printed Text
+            </button>
+            
+            <button
+              onClick={() => {
+                const input = document.createElement('input')
+                input.type = 'file'
+                input.accept = 'image/*'
+                input.onchange = (e) => {
+                  const file = (e.target as HTMLInputElement).files?.[0]
+                  if (file) handleOCRExtraction(file, 'handwritten')
+                }
+                input.click()
+              }}
+              className="ocr-btn handwritten"
+              disabled={extracting}
+            >
+              ✍️ Extract Handwritten Text
+            </button>
+          </div>
+          
+          <div className="upload-ornament"></div>
           
           {selectedFile && (
             <div className="file-info">

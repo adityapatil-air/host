@@ -1,6 +1,8 @@
 import os
 import torch
-from fastapi import FastAPI, HTTPException
+import requests
+import base64
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from transformers import MBart50TokenizerFast, MBartForConditionalGeneration
@@ -119,5 +121,50 @@ def health_check():
         "device": device if device else "unknown"
     }
 
+@app.post("/ocr/printed")
+async def extract_printed_text(file: UploadFile = File(...)):
+    image_bytes = await file.read()
+    api_key = os.getenv('GOOGLE_VISION_API_KEY')
+    
+    url = f'https://vision.googleapis.com/v1/images:annotate?key={api_key}'
+    encoded_image = base64.b64encode(image_bytes).decode('utf-8')
+    
+    payload = {'requests': [{'image': {'content': encoded_image}, 'features': [{'type': 'TEXT_DETECTION'}]}]}
+    headers = {'Referer': 'http://localhost:3000', 'Origin': 'http://localhost:3000'}
+    response = requests.post(url, json=payload, headers=headers)
+    
+    result = response.json()
+    if 'responses' in result and result['responses']:
+        resp = result['responses'][0]
+        annotations = resp.get('textAnnotations', [])
+        if annotations:
+            return {"extracted_text": annotations[0]['description'], "type": "printed"}
+    
+    return {"extracted_text": "No text found in image", "type": "printed"}
+
+@app.post("/ocr/handwritten")
+async def extract_handwritten_text(file: UploadFile = File(...)):
+    image_bytes = await file.read()
+    api_key = os.getenv('GOOGLE_VISION_API_KEY')
+    
+    url = f'https://vision.googleapis.com/v1/images:annotate?key={api_key}'
+    encoded_image = base64.b64encode(image_bytes).decode('utf-8')
+    
+    payload = {'requests': [{'image': {'content': encoded_image}, 'features': [{'type': 'DOCUMENT_TEXT_DETECTION'}]}]}
+    headers = {'Referer': 'http://localhost:3000', 'Origin': 'http://localhost:3000'}
+    response = requests.post(url, json=payload, headers=headers)
+    
+    result = response.json()
+    if 'responses' in result and result['responses']:
+        resp = result['responses'][0]
+        full_text = resp.get('fullTextAnnotation', {})
+        if full_text and 'text' in full_text:
+            return {"extracted_text": full_text['text'], "type": "handwritten"}
+        annotations = resp.get('textAnnotations', [])
+        if annotations:
+            return {"extracted_text": annotations[0]['description'], "type": "handwritten"}
+    
+    return {"extracted_text": "No text found in image", "type": "handwritten"}
+
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8001, reload=True)
+    uvicorn.run(app, host="0.0.0.0", port=8001)

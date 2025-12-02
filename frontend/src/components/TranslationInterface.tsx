@@ -18,6 +18,35 @@ export default function TranslationInterface() {
   const [sourceLang, setSourceLang] = useState('ne_NP')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [ocrLoading, setOcrLoading] = useState(false)
+
+  const handleOCR = async (type: 'printed' | 'handwritten') => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'image/*'
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0]
+      if (!file) return
+
+      setOcrLoading(true)
+      const formData = new FormData()
+      formData.append('file', file)
+
+      try {
+        const endpoint = type === 'printed' ? '/ocr/printed' : '/ocr/handwritten'
+        const response = await axios.post(`http://localhost:8001${endpoint}`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
+        setInputText(response.data.extracted_text)
+      } catch (err) {
+        console.error('OCR failed:', err)
+        setError('Text extraction failed')
+      } finally {
+        setOcrLoading(false)
+      }
+    }
+    input.click()
+  }
 
   const handleTranslate = async () => {
     if (!inputText.trim()) return
@@ -92,6 +121,8 @@ export default function TranslationInterface() {
             placeholder={t('translate.placeholder')}
             className="sacred-textarea"
           />
+          
+
         </div>
 
         <div className="transformation-bridge">

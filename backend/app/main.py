@@ -1,10 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils.logical import translate_text
+from app.ocr_services import printed_ocr, handwritten_ocr
 import uvicorn
 
 app = FastAPI(
@@ -35,6 +36,18 @@ def home():
 def translate_api(req: TranslateRequest):
     result = translate_text(req.text, req.src_lang, req.tgt_lang)
     return {"translated_text": result}
+
+@app.post("/ocr/printed")
+async def extract_printed_text(file: UploadFile = File(...)):
+    image_bytes = await file.read()
+    text = printed_ocr.extract_text(image_bytes)
+    return {"extracted_text": text, "type": "printed"}
+
+@app.post("/ocr/handwritten")
+async def extract_handwritten_text(file: UploadFile = File(...)):
+    image_bytes = await file.read()
+    text = handwritten_ocr.extract_text(image_bytes)
+    return {"extracted_text": text, "type": "handwritten"}
 
 @app.get("/supported-languages")
 def get_supported_languages():
