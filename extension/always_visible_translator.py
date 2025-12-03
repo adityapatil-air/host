@@ -83,7 +83,7 @@ class AlwaysVisibleTranslator:
         src = lang_map[self.from_lang.get()]
         
         try:
-            response = requests.post("http://localhost:8001/translate", 
+            response = requests.post("http://localhost:8000/translate", 
                                    json={"text": text, "src_lang": src, "tgt_lang": "en_XX"},
                                    timeout=10)
             

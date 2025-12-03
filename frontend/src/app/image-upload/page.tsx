@@ -72,7 +72,7 @@ export default function ImageUpload() {
       formData.append('file', file)
       
       const endpoint = type === 'printed' ? '/ocr/printed' : '/ocr/handwritten'
-      const response = await fetch(`http://localhost:8001${endpoint}`, {
+      const response = await fetch(`http://localhost:8000${endpoint}`, {
         method: 'POST',
         body: formData
       })
@@ -130,13 +130,13 @@ export default function ImageUpload() {
 
     setLoading(true)
     try {
-      const response = await fetch('http://localhost:8001/translate', {
+      const response = await fetch('http://localhost:8000/translate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           text: extractedText,
-          source_lang: 'nepali',
-          target_lang: 'english'
+          src_lang: 'ne_NP',
+          tgt_lang: 'en_XX'
         })
       })
       
@@ -144,6 +144,7 @@ export default function ImageUpload() {
       setTranslatedText(data.translated_text)
     } catch (error) {
       console.error('Translation failed:', error)
+      setTranslatedText('Translation failed. Please try again.')
     } finally {
       setLoading(false)
     }

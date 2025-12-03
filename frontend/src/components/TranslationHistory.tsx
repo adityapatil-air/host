@@ -10,7 +10,7 @@ export default function TranslationHistory() {
   const fetchHistory = async () => {
     setLoading(true)
     try {
-      const response = await axios.get('http://localhost:8001/history')
+      const response = await axios.get('http://localhost:8000/history')
       setHistory(response.data.translations)
     } catch (error) {
       console.error('Failed to fetch history:', error)

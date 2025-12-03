@@ -34,7 +34,7 @@ export default function TranslationInterface() {
 
       try {
         const endpoint = type === 'printed' ? '/ocr/printed' : '/ocr/handwritten'
-        const response = await axios.post(`http://localhost:8001${endpoint}`, formData, {
+        const response = await axios.post(`http://localhost:8000${endpoint}`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         })
         setInputText(response.data.extracted_text)
@@ -55,7 +55,7 @@ export default function TranslationInterface() {
     setError('')
     
     try {
-      const response = await axios.post<TranslationResponse>('http://localhost:8001/translate', {
+      const response = await axios.post<TranslationResponse>('http://localhost:8000/translate', {
         text: inputText,
         src_lang: sourceLang,
         tgt_lang: 'en_XX'

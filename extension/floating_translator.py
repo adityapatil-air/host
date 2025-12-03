@@ -40,7 +40,7 @@ class FloatingTranslator:
             'danger': '#CD5C5C'
         }
         
-        self.api_url = "http://localhost:8001/translate"
+        self.api_url = "http://localhost:8000/translate"
         self.expanded = False
         self.create_floating_button()
         
