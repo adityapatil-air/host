@@ -174,13 +174,9 @@ export default function TranslationInterface() {
               </select>
               <button
                 onClick={isRecording ? stopRecording : startRecording}
+                className="voice-btn"
                 style={{ 
-                  padding: '8px 12px', 
-                  background: isRecording ? '#dc3545' : '#007bff',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '5px',
-                  cursor: 'pointer'
+                  background: isRecording ? 'var(--accent)' : 'var(--bg-accent)'
                 }}
               >
                 {isRecording ? '⏹️' : '🎤'}
@@ -222,13 +218,10 @@ export default function TranslationInterface() {
               <button
                 onClick={speakText}
                 disabled={!translatedText}
+                className="voice-btn"
                 style={{ 
-                  padding: '8px 12px', 
-                  background: translatedText ? '#28a745' : '#6c757d',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '5px',
-                  cursor: translatedText ? 'pointer' : 'not-allowed'
+                  background: translatedText ? 'var(--secondary)' : 'var(--bg-accent)',
+                  opacity: translatedText ? 1 : 0.5
                 }}
               >
                 🔊
@@ -236,13 +229,10 @@ export default function TranslationInterface() {
               <button
                 onClick={downloadAsWord}
                 disabled={!translatedText}
+                className="voice-btn"
                 style={{ 
-                  padding: '8px 12px', 
-                  background: translatedText ? '#17a2b8' : '#6c757d',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '5px',
-                  cursor: translatedText ? 'pointer' : 'not-allowed'
+                  background: translatedText ? 'var(--primary)' : 'var(--bg-accent)',
+                  opacity: translatedText ? 1 : 0.5
                 }}
               >
                 📥

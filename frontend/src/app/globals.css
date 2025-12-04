@@ -17,6 +17,19 @@
   --shadow: rgba(139, 69, 19, 0.2);
 }
 
+.dark {
+  --primary: #CD853F;
+  --secondary: #8B4513;
+  --accent: #DAA520;
+  --bg-primary: linear-gradient(135deg, #1a1410 0%, #2d1f14 100%);
+  --bg-secondary: rgba(26, 20, 16, 0.95);
+  --bg-accent: rgba(218, 165, 32, 0.15);
+  --text-primary: #F5DEB3;
+  --text-secondary: #CD853F;
+  --border: rgba(205, 133, 63, 0.3);
+  --shadow: rgba(0, 0, 0, 0.5);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -484,19 +497,19 @@ body {
 }
 
 .ocr-btn.printed {
-  border-color: #3b82f6;
+  border-color: var(--primary);
 }
 
 .ocr-btn.handwritten {
-  border-color: #10b981;
+  border-color: var(--secondary);
 }
 
 .ocr-btn.printed:hover:not(:disabled) {
-  background: #3b82f6;
+  background: var(--primary);
 }
 
 .ocr-btn.handwritten:hover:not(:disabled) {
-  background: #10b981;
+  background: var(--secondary);
 }
 
 @media (max-width: 768px) {

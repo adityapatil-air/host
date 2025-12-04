@@ -5,10 +5,9 @@ import Sidebar from './Sidebar'
 import { useLanguage } from '../contexts/LanguageContext'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const { t } = useLanguage()
+  const { t, language, setLanguage } = useLanguage()
   const [theme, setTheme] = useState('light')
   const [uiTheme, setUiTheme] = useState('nepali-theme')
-  const [language, setLanguage] = useState('en')
   
   return (
     <div className={`cultural-app ${theme} ${uiTheme}`} suppressHydrationWarning>

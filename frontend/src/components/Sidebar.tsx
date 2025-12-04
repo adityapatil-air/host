@@ -15,10 +15,10 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
   
   const menuItems = [
     { id: 'text-translator', label: t('nav.translate'), icon: '📝', href: '/text-translator' },
-    { id: 'image-upload', label: 'Image/PDF Upload', icon: '🖼️', href: '/image-upload' },
+    { id: 'image-upload', label: t('nav.ocr'), icon: '🖼️', href: '/image-upload' },
     { id: 'learning-modules', label: t('nav.learning'), icon: '📚', href: '/learning-modules' },
-    { id: 'literature-centre', label: 'Literature Centre', icon: '📖', href: '/literature-centre' },
-    { id: 'get-extension', label: 'Get Extension', icon: '🚀', href: '/download-extension' },
+    { id: 'literature-centre', label: t('nav.literature'), icon: '📖', href: '/literature-centre' },
+    { id: 'get-extension', label: t('nav.extension'), icon: '🚀', href: '/download-extension' },
   ]
 
   return (
