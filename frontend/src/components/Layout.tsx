@@ -4,6 +4,8 @@ import { useState } from 'react'
 import Sidebar from './Sidebar'
 import { useLanguage } from '../contexts/LanguageContext'
 
+type Language = 'en' | 'si' | 'ne'
+
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { t, language, setLanguage } = useLanguage()
   const [theme, setTheme] = useState('light')
@@ -19,7 +21,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <p className="subtitle">{t('translate.title')}</p>
           </div>
           <div className="header-right">
-            <select value={language} onChange={(e) => setLanguage(e.target.value)} className="cultural-select">
+            <select value={language} onChange={(e) => setLanguage(e.target.value as Language)} className="cultural-select">
               <option value="en">English</option>
               <option value="ne">नेपाली</option>
               <option value="si">සිංහල</option>
