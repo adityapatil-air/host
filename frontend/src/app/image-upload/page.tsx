@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Layout from '@/components/Layout'
-import { createWorker } from 'tesseract.js'
+import { createWorker, PSM } from 'tesseract.js'
 
 export default function ImageUpload() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -72,7 +72,7 @@ export default function ImageUpload() {
       formData.append('file', file)
       
       const endpoint = type === 'printed' ? '/ocr/printed' : '/ocr/handwritten'
-      const response = await fetch(`http://localhost:8000${endpoint}`, {
+      const response = await fetch(`https://host-backend-i15y.onrender.com${endpoint}`, {
         method: 'POST',
         body: formData
       })
@@ -103,8 +103,7 @@ export default function ImageUpload() {
       })
       
       await worker.setParameters({
-        tessedit_pageseg_mode: '1',
-        preserve_interword_spaces: '1'
+        tessedit_pageseg_mode: PSM.SINGLE_BLOCK
       })
       
       const { data: { text } } = await worker.recognize(processedImage)
@@ -130,7 +129,7 @@ export default function ImageUpload() {
 
     setLoading(true)
     try {
-      const response = await fetch('http://localhost:8000/translate', {
+      const response = await fetch('https://host-backend-i15y.onrender.com/translate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
